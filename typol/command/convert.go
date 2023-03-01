@@ -20,7 +20,7 @@ var layoutTypes = []string{
 	"qwerty",
 }
 
-var _ Runner = &ConvertCommand{}
+var _ Executor = &ConvertCommand{}
 
 // NewConvertCommand returns ConvertCommand instance.
 func NewConvertCommand() *ConvertCommand {
@@ -41,11 +41,6 @@ func NewConvertCommand() *ConvertCommand {
 // Name returns this subcommand's name.
 func (c *ConvertCommand) Name() string {
 	return c.flags.Name()
-}
-
-// PrintHelp prints only help messages and defaults (without err).
-func (c *ConvertCommand) PrintHelp() {
-	c.flags.PrintDefaults()
 }
 
 // Init parses arguments.
@@ -80,8 +75,8 @@ func (c *ConvertCommand) Init(args []string) error {
 	return fmt.Errorf("unknown layout: %s", layout)
 }
 
-// Run is actual command operations invoked from main function.
-func (c *ConvertCommand) Run() error {
+// Exec is actual command operations invoked from main function.
+func (c *ConvertCommand) Exec() (string, error) {
 	var value string
 	switch c.toLayout() {
 	case "dvorak":
@@ -93,9 +88,9 @@ func (c *ConvertCommand) Run() error {
 	}
 	if value != "" {
 		// TODO
-		fmt.Println("TODO")
+		return "TODO", nil
 	}
-	return nil
+	return "", nil
 }
 
 func (c *ConvertCommand) toLayout() string {
@@ -103,9 +98,11 @@ func (c *ConvertCommand) toLayout() string {
 }
 
 func (c *ConvertCommand) toDvorak() string {
+	// TODO
 	return c.in
 }
 
 func (c *ConvertCommand) toQwerty() string {
+	// TODO
 	return c.in
 }
