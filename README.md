@@ -15,6 +15,16 @@ See `typol convert --help`.
 ...
 ```
 
+## Development
+
+```zsh
+# run only unit tests in typol package
+% make test
+
+# run only integration tests
+% make test:integration
+```
+
 
 ## License
 
