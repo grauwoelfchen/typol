@@ -1,8 +1,8 @@
-# TypoL
+# TypoL Exchanger
 
-A text exchanger for your key inputs.
+The world's most inaccurate exchanger.
 
-e.g. Qwerty -> Dvorak, Colemak -> Neo etc.
+It's not even powered by neural networks ;)
 
 
 ## Usage
@@ -11,7 +11,9 @@ See `typol convert --help`.
 
 ```zsh
 % typol convert "Hoi Zäme"
+TODO
 % typol convert -to Dvorak -in "Hoi Zäme"
+TODO
 ...
 ```
 
