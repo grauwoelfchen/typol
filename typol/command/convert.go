@@ -1,15 +1,17 @@
 package command
 
 import (
+	"bytes"
+	"errors"
 	"flag"
 	"fmt"
-	"os"
 	"strings"
 )
 
 // ConvertCommand converts Dvorak/Qverty input.
 type ConvertCommand struct {
-	flags *flag.FlagSet
+	fs  *flag.FlagSet
+	buf *bytes.Buffer
 
 	in string
 	to string
@@ -22,30 +24,39 @@ var layoutTypes = []string{
 
 var _ Executor = &ConvertCommand{}
 
+var UnknownLayoutErr = errors.New("unknown layout")
+
 // NewConvertCommand returns ConvertCommand instance.
 func NewConvertCommand() *ConvertCommand {
 	cc := &ConvertCommand{
-		flags: flag.NewFlagSet("convert", flag.ExitOnError),
+		fs:  flag.NewFlagSet("convert", flag.ContinueOnError),
+		buf: &bytes.Buffer{},
 	}
-	cc.flags.StringVar(&cc.in, "in", "", "Input value needs to be converted")
-	cc.flags.StringVar(&cc.to, "to", "Dvorak",
+
+	cc.fs.StringVar(&cc.in, "in", "", "Input value needs to be converted")
+	cc.fs.StringVar(&cc.to, "to", "Dvorak",
 		"Layout type ([Dd]vorak|[Qq]werty)")
 
-	cc.flags.Usage = func() {
-		fmt.Fprintln(os.Stdout, "usage: convert [input]")
-		cc.flags.PrintDefaults()
+	cc.fs.SetOutput(cc.buf)
+	cc.fs.Usage = func() {
+		fmt.Fprintln(cc.buf, "usage: convert [input]")
+		cc.fs.PrintDefaults()
 	}
 	return cc
 }
 
 // Name returns this subcommand's name.
 func (c *ConvertCommand) Name() string {
-	return c.flags.Name()
+	return c.fs.Name()
 }
 
 // Init parses arguments.
 func (c *ConvertCommand) Init(args []string) error {
-	err := c.flags.Parse(args)
+	// Note:
+	//   * We set ContinueOnError instead of ExitOnError or PanicOnError for this
+	//     FlagSet
+	//   * This returns ErrHelp if help message is requested
+	err := c.fs.Parse(args)
 	if err != nil {
 		return err
 	}
@@ -59,7 +70,7 @@ func (c *ConvertCommand) Init(args []string) error {
 	// % typol convert -- "-to"
 	// % typol convert -to Dvorak -- "-to"
 	// ```
-	var nArgs = c.flags.Args()
+	var nArgs = c.fs.Args()
 	if len(nArgs) > 0 {
 		if c.in == "" && nArgs[0] != "" {
 			c.in = nArgs[0]
@@ -72,37 +83,50 @@ func (c *ConvertCommand) Init(args []string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("unknown layout: %s", layout)
+	return UnknownLayoutErr
 }
 
 // Exec is actual command operations invoked from main function.
-func (c *ConvertCommand) Exec() (string, error) {
-	var value string
+func (c *ConvertCommand) Exec() error {
+	var out string
+	var err error
+
+	if c.in == "" {
+		return nil
+	}
+
 	switch c.toLayout() {
 	case "dvorak":
-		value = c.toDvorak()
+		out, err = c.toDvorak()
 	case "qverty":
-		value = c.toQwerty()
+		out, err = c.toQwerty()
 	default:
-		value = c.toDvorak()
+		out, err = c.toDvorak()
 	}
-	if value != "" {
-		// TODO
-		return "TODO", nil
+	if err != nil {
+		return err
 	}
-	return "", nil
+	c.buf.WriteString(out)
+	return nil
+}
+
+// Output returns combined outputs from the buffer.
+func (c *ConvertCommand) Output() string {
+	out := strings.TrimSuffix(c.buf.String(), "\n")
+	c.buf.Reset()
+	return out
 }
 
 func (c *ConvertCommand) toLayout() string {
 	return strings.ToLower(c.to)
 }
 
-func (c *ConvertCommand) toDvorak() string {
-	// TODO
-	return c.in
+func (c *ConvertCommand) toDvorak() (string, error) {
+	// FIXME: c.in
+	return "TODO", nil
 }
 
-func (c *ConvertCommand) toQwerty() string {
-	// TODO
-	return c.in
+func (c *ConvertCommand) toQwerty() (string, error) {
+	// FIXME: c.in
+	return "TODO", nil
 }

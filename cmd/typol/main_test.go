@@ -105,6 +105,14 @@ func TestRun(t *testing.T) {
 			hasErr: false,
 			want:   "TODO\n",
 		},
+		"convert with a --help flag": {
+			args: []string{
+				"convert",
+				"--help",
+			},
+			hasErr: false,
+			want:   fmt.Sprintf("%s\n", convertHelpMsg),
+		},
 		"convert with a -in flag": {
 			args: []string{
 				"convert",
@@ -120,8 +128,7 @@ func TestRun(t *testing.T) {
 				"-foo",
 			},
 			hasErr: true,
-			want: fmt.Sprintf(
-				"flag provided but not defined: -foo\n%s\n", convertHelpMsg),
+			want:   "flag provided but not defined: -foo\n",
 		},
 	}
 	for name, tt := range tests {

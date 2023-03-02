@@ -2,6 +2,7 @@ package command
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"regexp"
 )
@@ -10,13 +11,11 @@ import (
 type Executor interface {
 	Name() string
 	Init([]string) error
-	Exec() (string, error)
+	Exec() error
+	Output() string
 }
 
-var subcommands = []Executor{
-	NewConvertCommand(),
-}
-
+var helpArg = regexp.MustCompile(`^--?(h|help)$`)
 var helpMsg = `usage: typol <subcommand> [OPTION]...
 
 subcommands
@@ -28,22 +27,38 @@ func Run(args []string) (string, error) {
 		err := errors.New("subcommand is required")
 		return "", err
 	}
-	cmd := args[0]
+	name := args[0]
 
-	var helpArgs = regexp.MustCompile(`^--?(h|help)$`)
-	if helpArgs.MatchString(cmd) {
+	if helpArg.MatchString(name) {
 		return helpMsg, nil
 	}
 
-	for _, s := range subcommands {
-		if s.Name() == cmd {
-			err := s.Init(args[1:])
-			if err != nil {
-				return helpMsg, err
+	// NOTE:
+	// Each subcommand has buffered output (state), so we need to generate them
+	// at runtime for now.
+	var subcommands = []Executor{
+		NewConvertCommand(),
+	}
+
+	for _, cmd := range subcommands {
+		var err error
+		if cmd.Name() == name {
+			err = cmd.Init(args[1:])
+			// We don't os.Exit(1) for requested ErrHelp
+			if err == flag.ErrHelp {
+				return cmd.Output(), nil
 			}
-			return s.Exec()
+			if err != nil {
+				return "", err
+			}
+
+			err = cmd.Exec()
+			if err != nil {
+				return "", err
+			}
+			return cmd.Output(), nil
 		}
 	}
-	err := fmt.Errorf("unknown subcommand: %s", cmd)
+	err := fmt.Errorf("unknown subcommand: %s", name)
 	return "", err
 }
