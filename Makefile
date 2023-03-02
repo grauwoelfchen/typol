@@ -18,6 +18,11 @@ lint:
 	@golangci-lint run --out-format=line-number ./...
 .PHONY: lint
 
+setup:
+	@go install golang.org/x/tools/cmd/stringer
+	@go generate ./typol/...
+.PHONY: setup
+
 test:
 	@$(GOTEST) -v ./typol/...
 .PHONY: test
@@ -26,7 +31,7 @@ test\:integration: build
 	@$(GOTEST) -v -tags integration ./cmd/...
 .PHONY: test\:integration
 
-build:
+build: setup
 	@go build -o ./dst/ ./...
 .PHONY: build
 

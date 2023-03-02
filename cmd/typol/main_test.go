@@ -22,11 +22,11 @@ subcommands
 
 // The output from PrintDefaults() contains `\n    \t` :'(
 // https://github.com/golang/go/blob/master/src/flag/flag.go#L575
-var convertHelpMsg = `usage: convert [input]
+var convertHelpMsg = `usage: convert [OPTION]... TEXT
   -in string
-    	Input value needs to be converted
-  -to string
-    	Layout type ([Dd]vorak|[Qq]werty) (default "Dvorak")`
+    	Input layout type ([Dd]vorak|[Qq]werty) (default "Dvorak")
+  -out string
+    	Output layout type ([Dd]vorak|[Qq]werty) (default "Qwerty")`
 
 func execute(args []string) ([]byte, error) {
 	cmd := exec.Command(binPath, args...)
@@ -117,10 +117,10 @@ func TestRun(t *testing.T) {
 			args: []string{
 				"convert",
 				"-in",
-				"hello",
+				"dvorak",
 			},
 			hasErr: false,
-			want:   "TODO\n",
+			want:   "",
 		},
 		"convert with unknown flag": {
 			args: []string{
@@ -129,6 +129,18 @@ func TestRun(t *testing.T) {
 			},
 			hasErr: true,
 			want:   "flag provided but not defined: -foo\n",
+		},
+		"convert with full args": {
+			args: []string{
+				"convert",
+				"-in",
+				"dvorak",
+				"-out",
+				"qwerty",
+				"hello",
+			},
+			hasErr: false,
+			want:   "TODO\n",
 		},
 	}
 	for name, tt := range tests {

@@ -13,13 +13,18 @@ type ConvertCommand struct {
 	fs  *flag.FlagSet
 	buf *bytes.Buffer
 
-	in string
-	to string
+	from Layout
+	to   Layout
+
+	// user inputs
+	in  string
+	out string
+	txt string
 }
 
-var layoutTypes = []string{
-	"dvorak",
-	"qwerty",
+var layoutTypes = []Layout{
+	Dvorak,
+	Qwerty,
 }
 
 var _ Executor = &ConvertCommand{}
@@ -33,13 +38,14 @@ func NewConvertCommand() *ConvertCommand {
 		buf: &bytes.Buffer{},
 	}
 
-	cc.fs.StringVar(&cc.in, "in", "", "Input value needs to be converted")
-	cc.fs.StringVar(&cc.to, "to", "Dvorak",
-		"Layout type ([Dd]vorak|[Qq]werty)")
+	cc.fs.StringVar(&cc.in, "in", "Dvorak",
+		"Input layout type ([Dd]vorak|[Qq]werty)")
+	cc.fs.StringVar(&cc.out, "out", "Qwerty",
+		"Output layout type ([Dd]vorak|[Qq]werty)")
 
 	cc.fs.SetOutput(cc.buf)
 	cc.fs.Usage = func() {
-		fmt.Fprintln(cc.buf, "usage: convert [input]")
+		fmt.Fprintln(cc.buf, "usage: convert [OPTION]... TEXT")
 		cc.fs.PrintDefaults()
 	}
 	return cc
@@ -65,25 +71,40 @@ func (c *ConvertCommand) Init(args []string) error {
 	//
 	// ```zsh
 	// % typol convert Hoi
-	// % typol convert -to Dvorak Hoi
+	// % typol convert -in Dvorak Hoi
+	// % typol convert -in Dvorak -out Qwerty Hoi
+	// % typol convert -in Dvorak -out Qwerty --txt Hoi
 	// # fyi, also these
-	// % typol convert -- "-to"
-	// % typol convert -to Dvorak -- "-to"
+	// % typol convert -- "-out"
+	// % typol convert -in Dvorak -- "-out"
 	// ```
 	var nArgs = c.fs.Args()
 	if len(nArgs) > 0 {
-		if c.in == "" && nArgs[0] != "" {
-			c.in = nArgs[0]
+		if c.txt == "" && nArgs[0] != "" {
+			c.txt = nArgs[0]
 		}
 	}
 
-	layout := c.toLayout()
+	// validations
+	c.from = findLayoutType(c.in)
+	if c.from == Unknown {
+		return UnknownLayoutErr
+	}
+	c.to = findLayoutType(c.out)
+	if c.to == Unknown {
+		return UnknownLayoutErr
+	}
+	return nil
+}
+
+func findLayoutType(s string) Layout {
+	layout := strings.Title(s)
 	for _, t := range layoutTypes {
-		if layout == t {
-			return nil
+		if layout == t.String() {
+			return t
 		}
 	}
-	return UnknownLayoutErr
+	return Unknown
 }
 
 // Exec is actual command operations invoked from main function.
@@ -91,15 +112,15 @@ func (c *ConvertCommand) Exec() error {
 	var out string
 	var err error
 
-	if c.in == "" {
+	if c.txt == "" {
 		return nil
 	}
 
-	switch c.toLayout() {
-	case "dvorak":
-		out, err = c.toDvorak()
-	case "qverty":
+	switch c.from {
+	case Dvorak:
 		out, err = c.toQwerty()
+	case Qwerty:
+		out, err = c.toDvorak()
 	default:
 		out, err = c.toDvorak()
 	}
@@ -115,10 +136,6 @@ func (c *ConvertCommand) Output() string {
 	out := strings.TrimSuffix(c.buf.String(), "\n")
 	c.buf.Reset()
 	return out
-}
-
-func (c *ConvertCommand) toLayout() string {
-	return strings.ToLower(c.to)
 }
 
 func (c *ConvertCommand) toDvorak() (string, error) {

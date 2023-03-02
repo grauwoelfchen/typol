@@ -10,14 +10,19 @@ It's not even powered by neural networks ;)
 See `typol convert --help`.
 
 ```zsh
-% typol convert "Hoi Zäme"
+% typol convert -in Dvorak -out Qwerty "Hoi Zäme"
 TODO
-% typol convert -to Dvorak -in "Hoi Zäme"
+% typol convert "Hoi Zäme"
 TODO
 ...
 ```
 
 ## Development
+
+```zsh
+# run go generate (for stringer)
+% make setup
+```
 
 ```zsh
 # run only unit tests in typol package

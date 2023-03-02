@@ -50,6 +50,11 @@ func TestExec(t *testing.T) {
 			out:  "TODO",
 			err:  nil,
 		},
+		"convert with full args": {
+			args: []string{"convert", "-in", "Dvorak", "-out", "Qwerty", "hello"},
+			out:  "TODO",
+			err:  nil,
+		},
 	}
 
 	for name, tt := range tests {

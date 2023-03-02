@@ -43,7 +43,7 @@ func TestInit(t *testing.T) {
 			errMsg: "flag provided but not defined: -unknown",
 		},
 		"unknown layout": {
-			args:   []string{"-to", "Colemak"},
+			args:   []string{"-in", "Colemak"},
 			errMsg: UnknownLayoutErr.Error(),
 		},
 	}
