@@ -7,6 +7,8 @@ It's not even powered by neural networks ;)
 
 ## Usage
 
+### CLI
+
 See `typol convert --help`.
 
 ```zsh
@@ -15,6 +17,18 @@ TODO
 % typol convert "Hoi Zäme"
 TODO
 ...
+```
+
+### Server
+
+```zsh
+% make build:server
+% ./dst/typol-server
+```
+
+```zsh
+% curl localhost:3000/convert -F 'text=Hello'
+TODO
 ```
 
 ## Development

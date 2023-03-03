@@ -32,7 +32,11 @@ test\:integration: build
 .PHONY: test\:integration
 
 build: setup
-	@go build -o ./dst/ ./...
+	@go build -o ./dst/typol ./cmd/typol/...
+.PHONY: build
+
+build\:server: setup
+	@go build -o ./dst/typol-server ./cmd/server
 .PHONY: build
 
 clean:
