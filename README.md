@@ -1,6 +1,6 @@
-# TypoL Exchanger
+# TypoL Converter
 
-The world's most inaccurate exchanger.
+The world's most inaccurate converter.
 
 It's not even powered by neural networks ;)
 
@@ -9,15 +9,22 @@ It's not even powered by neural networks ;)
 
 ### CLI
 
-See `typol convert --help`.
+Do you need to type your Dvorak keyboards as Qwerty input? Try as follow:
 
 ```zsh
-% typol convert -in Dvorak -out Qwerty "Hoi Zäme"
-TODO
-% typol convert "Hoi Zäme"
-TODO
-...
+% typol convert -in Qwerty -out Dvorak "loadkeys dvorak"
+nraet.fo ekrpat
 ```
+
+Or, opposite?
+
+```zsh
+# same as -in Dvorak -out Qwerty
+% typol convert "loadkeys /usr/share/keymaps/i386/qwerty/us.map.gz"
+psahvdt; [f;o[;jaod[vdtmar;[g386[x,dokt[f;emareu\
+```
+
+See `typol convert --help` for usage.
 
 ### Server
 
