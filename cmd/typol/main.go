@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"git.sr.ht/grauwoelfchen/typol/typol/command"
+	"git.sr.ht/grauwoelfchen/typol/typol/service"
 )
 
 func main() {
-	out, err := command.Run(os.Args[1:])
+	out, err := service.Run(os.Args[1:])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)

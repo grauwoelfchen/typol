@@ -1,10 +1,12 @@
 //go:build !integration
 
-package command
+package service
 
 import (
 	"reflect"
 	"testing"
+
+	"git.sr.ht/grauwoelfchen/typol/typol"
 )
 
 func TestNewConvertCommand(t *testing.T) {
@@ -12,7 +14,7 @@ func TestNewConvertCommand(t *testing.T) {
 		got := NewConvertCommand()
 
 		typ := reflect.TypeOf(got).String()
-		if typ != "*command.ConvertCommand" {
+		if typ != "*service.ConvertCommand" {
 			t.Errorf("failed to create ConvertCommand")
 		}
 	})
@@ -44,7 +46,7 @@ func TestInit(t *testing.T) {
 		},
 		"unknown layout": {
 			args:   []string{"-in", "Colemak"},
-			errMsg: UnknownLayoutErr.Error(),
+			errMsg: typol.UnknownLayoutErr.Error(),
 		},
 	}
 

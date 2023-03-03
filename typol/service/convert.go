@@ -1,11 +1,12 @@
-package command
+package service
 
 import (
 	"bytes"
-	"errors"
 	"flag"
 	"fmt"
 	"strings"
+
+	"git.sr.ht/grauwoelfchen/typol/typol"
 )
 
 // ConvertCommand converts Dvorak/Qverty input.
@@ -13,8 +14,8 @@ type ConvertCommand struct {
 	fs  *flag.FlagSet
 	buf *bytes.Buffer
 
-	from Layout
-	to   Layout
+	from typol.Layout
+	to   typol.Layout
 
 	// user inputs
 	in  string
@@ -22,14 +23,7 @@ type ConvertCommand struct {
 	txt string
 }
 
-var layoutTypes = []Layout{
-	Dvorak,
-	Qwerty,
-}
-
 var _ Executor = &ConvertCommand{}
-
-var UnknownLayoutErr = errors.New("unknown layout")
 
 // NewConvertCommand returns ConvertCommand instance.
 func NewConvertCommand() *ConvertCommand {
@@ -86,25 +80,15 @@ func (c *ConvertCommand) Init(args []string) error {
 	}
 
 	// validations
-	c.from = findLayoutType(c.in)
-	if c.from == Unknown {
-		return UnknownLayoutErr
+	c.from = typol.FindLayoutType(c.in)
+	if c.from == typol.Unknown {
+		return typol.UnknownLayoutErr
 	}
-	c.to = findLayoutType(c.out)
-	if c.to == Unknown {
-		return UnknownLayoutErr
+	c.to = typol.FindLayoutType(c.out)
+	if c.to == typol.Unknown {
+		return typol.UnknownLayoutErr
 	}
 	return nil
-}
-
-func findLayoutType(s string) Layout {
-	layout := strings.Title(s)
-	for _, t := range layoutTypes {
-		if layout == t.String() {
-			return t
-		}
-	}
-	return Unknown
 }
 
 // Exec is actual command operations invoked from main function.
@@ -117,9 +101,9 @@ func (c *ConvertCommand) Exec() error {
 	}
 
 	switch c.from {
-	case Dvorak:
+	case typol.Dvorak:
 		out, err = c.toQwerty()
-	case Qwerty:
+	case typol.Qwerty:
 		out, err = c.toDvorak()
 	default:
 		out, err = c.toDvorak()
