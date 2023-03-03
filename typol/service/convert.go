@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"git.sr.ht/grauwoelfchen/typol/typol"
 )
@@ -92,27 +93,24 @@ func (c *ConvertCommand) Init(args []string) error {
 }
 
 // Exec is actual command operations invoked from main function.
-func (c *ConvertCommand) Exec() error {
-	var out string
-	var err error
-
+func (c *ConvertCommand) Exec() {
 	if c.txt == "" {
-		return nil
+		return
 	}
 
-	switch c.from {
-	case typol.Dvorak:
-		out, err = c.toQwerty()
-	case typol.Qwerty:
-		out, err = c.toDvorak()
-	default:
-		out, err = c.toDvorak()
+	var out string
+	if c.from == typol.Dvorak && c.to == typol.Qwerty {
+		// reverse DataQD
+		data := make(map[rune]rune, len(typol.DataQD))
+		for k, v := range typol.DataQD {
+			data[v] = k
+		}
+		out = c.convert(data)
+	} else if c.from == typol.Qwerty && c.to == typol.Dvorak {
+		out = c.convert(typol.DataQD)
 	}
-	if err != nil {
-		return err
-	}
+
 	c.buf.WriteString(out)
-	return nil
 }
 
 // Output returns combined outputs from the buffer.
@@ -122,12 +120,16 @@ func (c *ConvertCommand) Output() string {
 	return out
 }
 
-func (c *ConvertCommand) toDvorak() (string, error) {
-	// FIXME: c.in
-	return "TODO", nil
-}
-
-func (c *ConvertCommand) toQwerty() (string, error) {
-	// FIXME: c.in
-	return "TODO", nil
+func (c *ConvertCommand) convert(data map[rune]rune) string {
+	out := ""
+	for i, w := 0, 0; i < len(c.txt); i += w {
+		qr, width := utf8.DecodeRuneInString(c.txt[i:])
+		c := qr
+		if dr, ok := data[qr]; ok {
+			c = dr
+		}
+		out = strings.Join([]string{out, string(c)}, "")
+		w = width
+	}
+	return out
 }

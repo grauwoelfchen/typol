@@ -47,12 +47,17 @@ func TestExec(t *testing.T) {
 		},
 		"convert with an arg": {
 			args: []string{"convert", "hello"},
-			out:  "TODO",
+			out:  "jdpps",
 			err:  nil,
 		},
-		"convert with full args": {
+		"convert with full args -in Dvorak -out Qwerty": {
 			args: []string{"convert", "-in", "Dvorak", "-out", "Qwerty", "hello"},
-			out:  "TODO",
+			out:  "jdpps",
+			err:  nil,
+		},
+		"convert with full args -in Qwerty -out Dvorak": {
+			args: []string{"convert", "-in", "Qwerty", "-out", "Dvorak", "hello"},
+			out:  "d.nnr",
 			err:  nil,
 		},
 	}

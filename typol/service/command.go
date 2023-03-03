@@ -11,7 +11,7 @@ import (
 type Executor interface {
 	Name() string
 	Init([]string) error
-	Exec() error
+	Exec()
 	Output() string
 }
 
@@ -52,10 +52,7 @@ func Run(args []string) (string, error) {
 				return "", err
 			}
 
-			err = cmd.Exec()
-			if err != nil {
-				return "", err
-			}
+			cmd.Exec()
 			return cmd.Output(), nil
 		}
 	}

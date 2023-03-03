@@ -103,7 +103,7 @@ func TestRun(t *testing.T) {
 				"hello",
 			},
 			hasErr: false,
-			want:   "TODO\n",
+			want:   "jdpps\n",
 		},
 		"convert with a --help flag": {
 			args: []string{
@@ -140,7 +140,7 @@ func TestRun(t *testing.T) {
 				"hello",
 			},
 			hasErr: false,
-			want:   "TODO\n",
+			want:   "jdpps\n",
 		},
 	}
 	for name, tt := range tests {
