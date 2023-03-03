@@ -9,14 +9,15 @@ It's not even powered by neural networks ;)
 
 ### CLI
 
-Do you need to type your Dvorak keyboards as Qwerty input? Try as follow:
+Do you need to type on your Dvorak keyboard but as Qwerty input? Try as follow:
 
 ```zsh
+# US Dvorak
 % typol convert -in Qwerty -out Dvorak "loadkeys dvorak"
 nraet.fo ekrpat
 ```
 
-Or, opposite?
+Or, in the opposite way?
 
 ```zsh
 # same as -in Dvorak -out Qwerty
