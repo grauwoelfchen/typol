@@ -3,7 +3,9 @@ package typol
 
 import (
 	"errors"
-	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type Layout int
@@ -22,7 +24,8 @@ var layoutTypes = []Layout{
 }
 
 func FindLayoutType(s string) Layout {
-	name := strings.Title(s)
+	c := cases.Title(language.English)
+	name := c.String(s)
 	for _, t := range layoutTypes {
 		if name == t.String() {
 			return t
