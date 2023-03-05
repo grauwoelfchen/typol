@@ -38,8 +38,14 @@ img/typol-server.png?raw=true "TypoL Converter")
 ```
 
 ```zsh
-% curl localhost:3000/convert -F 'text=Hello'
-TODO
+% curl localhost:3000/convert -d 'in=Qwerty&out=Dvorak&text=loadkeys dvorak'
+nraet.fo ekrpat
+# via a file
+% cat input.txt
+loadkeys dvorak
+% curl localhost:3000/convert -F 'in=Qwerty' -F 'out=Dvorak' \
+-F 'text=@input.txt'
+nraet.fo ekrpat
 ```
 
 ## Development
