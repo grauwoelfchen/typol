@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typol</title>
+  <style>
+#form,
+#result {
+  border: 1px solid #e6e6e3;
+  float: left;
+}
+
+#form .field:nth-child(1),
+#result .field:nth-child(1) {
+  border-bottom: 1px solid #e6e6e3;
+  height: 1.63rem;
+  padding: 0.12rem 0 0.12rem 0.21rem;
+}
+
+#form #text {
+  border: none;
+  resize: none;
+  width: 20.11rem;
+  height: 13.17rem;
+}
+
+.field {
+  width: 20.2rem;
+}
+
+#output {
+  height: 13.58rem;
+  width: 20.11rem;
+}
+  </style>
+</head>
+<body>
+  <h1>TypoL Converter</h1>
+  <div class="content">
+    <form id="form" action="/convert", method="POST" enctype="multipart/form-data">
+      <div class="field">
+        <label for="in">Layout</label>
+        <select id="in" name="in">
+          <option value="Qwerty" selected>Qwerty</option>
+          <option value="Dvorak">Dvorak</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="text"></label>
+        <textarea id="text" name="text" cols="30" rows="10"></textarea>
+      </div>
+    </form>
+    <div id="result">
+      <div class="field">
+        <label for="out">Layout</label>
+        <select id="out" name="out">
+          <option value="Qwerty">Qwerty</option>
+          <option value="Dvorak" selected>Dvorak</option>
+        </select>
+      </div>
+      <div class="field">
+        <div id="output"></div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    function debounce(fn, timeout = 900) {
+      let lock;
+      return ((...args) => {
+        if (!lock) {
+          fn.apply(this, args);
+        }
+        clearTimeout(lock);
+        lock = setTimeout(() => {
+          lock = undefined;
+        }, timeout);
+      });
+    }
+
+    function waitDone(fn, timeout = 1200) {
+      let lock;
+      return ((...args) => {
+        if (lock) {
+          clearTimeout(lock);
+        }
+        lock = setTimeout(() => {
+          fn();
+        }, timeout);
+      });
+    }
+
+    function sendData(data) {
+      let blob = new Blob([data], {
+        type: 'text/plain',
+      });
+
+      let body = new FormData();
+      body.append('text', blob, 'input.txt');
+
+      let from = document.querySelector('#in');
+      if (from.value === 'Dvorak' || from.value === 'Qwerty') {
+        body.append('in', from.value);
+      }
+
+      let to = document.querySelector('#out');
+      if (to.value === 'Dvorak' || to.value === 'Qwerty') {
+        body.append('out', to.value);
+      }
+
+      fetch('/convert', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+        body,
+      }).then(res => {
+        return res.text();
+      }).then(txt => {
+        let output = document.querySelector('#output');
+        output.innerText = txt;
+      }).catch(err => {
+        console.log(err);
+      });
+    }
+
+    function setup() {
+      let handler = debounce(() => {
+        let text = document.querySelector('#text');
+        let data = text.value;
+        if (data !== '') {
+          sendData(data);
+        } else {
+          let output = document.querySelector('#output');
+          output.innerText = '';
+        }
+      });
+
+      let process = waitDone(() => {
+        handler();
+      });
+
+      let from = document.querySelector('#in');
+      let to = document.querySelector('#out');
+
+      from.addEventListener('change', (e) => {
+        if (from.value == 'Dvorak') {
+          to.value = 'Qwerty';
+        } else {
+          to.value = 'Dvorak';
+        }
+        handler();
+      });
+
+      to.addEventListener('change', (e) => {
+        if (to.value == 'Dvorak') {
+          from.value = 'Qwerty';
+        } else {
+          from.value = 'Dvorak';
+        }
+        handler();
+      });
+
+      let text = document.querySelector('#text');
+      text.addEventListener('input', (e) => {
+        process();
+      });
+      text.addEventListener('focusout', (e) => {
+        process();
+      });
+    }
+
+    if (document.readyState == 'loading') {
+      document.addEventListener('DOMContentLoaded', setup);
+    } else {
+      setup();
+    }
+  </script>
+</body>
+</html>

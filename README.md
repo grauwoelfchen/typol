@@ -29,6 +29,9 @@ See `typol convert --help` for usage.
 
 ### Server
 
+![A screenshot of TypoL Converter Web](
+img/typol-server.png?raw=true "TypoL Converter")
+
 ```zsh
 % make build:server
 % ./dst/typol-server
