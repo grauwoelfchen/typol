@@ -13,7 +13,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
+
 	if out != "" {
-		fmt.Println(out)
+		fmt.Fprintln(os.Stdout, out)
 	}
 }

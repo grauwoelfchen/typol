@@ -15,6 +15,8 @@ type Executor interface {
 	Output() string
 }
 
+var _ Executor = &ConvertCommand{}
+
 var helpArg = regexp.MustCompile(`^--?(h|help)$`)
 var helpMsg = `usage: typol <subcommand> [OPTION]...
 

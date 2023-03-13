@@ -43,7 +43,7 @@ func TestInit(t *testing.T) {
 		},
 		"invalid arg": {
 			args:   []string{"-in", "hello", "--unknown"},
-			errMsg: "flag provided but not defined: -unknown",
+			errMsg: "failed to parse args: flag provided but not defined: -unknown",
 		},
 		"unknown layout": {
 			args:   []string{"-in", "Colemak"},

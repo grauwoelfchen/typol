@@ -24,8 +24,6 @@ type ConvertCommand struct {
 	txt string
 }
 
-var _ Executor = &ConvertCommand{}
-
 // NewConvertCommand returns ConvertCommand instance.
 func NewConvertCommand() *ConvertCommand {
 	cc := &ConvertCommand{
@@ -43,6 +41,7 @@ func NewConvertCommand() *ConvertCommand {
 		fmt.Fprintln(cc.buf, "usage: convert [OPTION]... TEXT")
 		cc.fs.PrintDefaults()
 	}
+
 	return cc
 }
 
@@ -57,9 +56,8 @@ func (c *ConvertCommand) Init(args []string) error {
 	//   * We set ContinueOnError instead of ExitOnError or PanicOnError for this
 	//     FlagSet
 	//   * This returns ErrHelp if help message is requested
-	err := c.fs.Parse(args)
-	if err != nil {
-		return err
+	if err := c.fs.Parse(args); err != nil {
+		return fmt.Errorf("failed to parse args: %w", err)
 	}
 
 	// this allows an argument to be passed without -in as followings:
@@ -73,7 +71,8 @@ func (c *ConvertCommand) Init(args []string) error {
 	// % typol convert -- "-out"
 	// % typol convert -in Dvorak -- "-out"
 	// ```
-	var nArgs = c.fs.Args()
+
+	nArgs := c.fs.Args()
 	if len(nArgs) > 0 {
 		if c.txt == "" && nArgs[0] != "" {
 			c.txt = nArgs[0]
@@ -85,10 +84,12 @@ func (c *ConvertCommand) Init(args []string) error {
 	if c.from == typol.Unknown {
 		return typol.UnknownLayoutErr
 	}
+
 	c.to = typol.FindLayoutType(c.out)
 	if c.to == typol.Unknown {
 		return typol.UnknownLayoutErr
 	}
+
 	return nil
 }
 
@@ -99,12 +100,14 @@ func (c *ConvertCommand) Exec() {
 	}
 
 	var out string
+
 	if c.from == typol.Dvorak && c.to == typol.Qwerty {
 		// reverse DataQD
 		data := make(map[rune]rune, len(typol.DataQD))
 		for k, v := range typol.DataQD {
 			data[v] = k
 		}
+
 		out = c.convert(data)
 	} else if c.from == typol.Qwerty && c.to == typol.Dvorak {
 		out = c.convert(typol.DataQD)
@@ -117,19 +120,24 @@ func (c *ConvertCommand) Exec() {
 func (c *ConvertCommand) Output() string {
 	out := strings.TrimSuffix(c.buf.String(), "\n")
 	c.buf.Reset()
+
 	return out
 }
 
 func (c *ConvertCommand) convert(data map[rune]rune) string {
 	out := ""
+
 	for i, w := 0, 0; i < len(c.txt); i += w {
 		qr, width := utf8.DecodeRuneInString(c.txt[i:])
 		c := qr
+
 		if dr, ok := data[qr]; ok {
 			c = dr
 		}
+
 		out = strings.Join([]string{out, string(c)}, "")
 		w = width
 	}
+
 	return out
 }

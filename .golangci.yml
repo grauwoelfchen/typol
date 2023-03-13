@@ -1,6 +1,15 @@
 linters:
   # https://golangci-lint.run/usage/linters/#disabled-by-default
   fast: false
+  disable:
+    - cyclop
+    - exhaustivestruct
+    - exhaustruct
+    - funlen
+    - godox
+    - gomnd
+    - nlreturn
+    - varnamelen
 
 linter-settings:
   errcheck:
